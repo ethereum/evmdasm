@@ -9,9 +9,19 @@ from evm_instruction import registry
 
 # access via named dict
 jmp = registry.instruction.JUMP
+
+# access via dict
 jmp = registry.INSTRUCTIONS_BY_NAME["JUMP"]
+
+# access via categories lookup
 terminating_instructions = registry.INSTRUCTIONS_BY_CATEGORY["terminate"]
+
+# access all instructions as a list (no guarantee this is sorted in the future)
 list_of_all_instructions = registry.INSTRUCTIONS
+
+# extract certain instructions
+list_of_gas_heavy_instructions = [i for i in registry.INSTRUCTIONS if i.gas > 500]
+
 
 # disassemble
 
