@@ -53,9 +53,15 @@ from evm_instruction import registry
 jmp = registry.instruction.JUMP
 
 # access via dict
-jmp = registry.INSTRUCTIONS_BY_OPCODE["JUMP"]  # get the template object from the instruction registry
-jmp = registry.INSTRUCTIONS_BY_NAME["JUMP"]  # get the template object from the instruction registry
-jmp = registry.create_instruction(name="JUMP")  # create a new jump instruction object in order to keep 
+## accessing the template objects (avoid modifying them)
+
+jmp = registry.INSTRUCTIONS_BY_OPCODE["JUMP"]  # get the template object from the instruction registry 
+jmp = registry.INSTRUCTIONS_BY_NAME["JUMP"]  # get the template object from the instruction registry 
+
+jmp = jmp.clone()  # clone a new instruction from the template object
+
+## creating new instruction objects from the template 
+jmp = registry.create_instruction(name="JUMP")  # create a new jump instruction object in order to keep (
 
 # access via categories lookup
 terminating_instructions = registry.INSTRUCTIONS_BY_CATEGORY["terminate"]
