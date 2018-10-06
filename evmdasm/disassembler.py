@@ -34,9 +34,9 @@ class EvmDisassembler(object):
                 instruction = self._registry.by_opcode[opcode].consume(iter_bytecode)
                 if not len(instruction.operand_bytes)==instruction.length_of_operand:
                     logger.error("invalid instruction: %s" % instruction.name)
-                    instruction.name = "INVALID_%s" % hex(opcode)
-                    instruction.description = "Invalid operand"
-                    instruction.category = "unknown"
+                    instruction._name = "INVALID_%s" % hex(opcode)
+                    instruction._description = "Invalid operand"
+                    instruction._category = "unknown"
 
             except KeyError as ke:
                 instruction = self._registry._template_cls(opcode=opcode,
