@@ -9,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 class EvmDisassembler(object):
 
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, _registry=None):
         self.errors = []
         self.debug = debug
+        self._registry = _registry if _registry is not None else registry.registry
 
     def disassemble(self, bytecode):
         """ Disassemble evm bytecode to a Instruction objects """
@@ -30,7 +31,7 @@ class EvmDisassembler(object):
         for opcode in iter_bytecode:
             logger.debug(opcode)
             try:
-                instruction = registry.INSTRUCTIONS_BY_OPCODE[opcode].consume(iter_bytecode)
+                instruction = self._registry.by_opcode[opcode].consume(iter_bytecode)
                 if not len(instruction.operand_bytes)==instruction.length_of_operand:
                     logger.error("invalid instruction: %s" % instruction.name)
                     instruction.name = "INVALID_%s" % hex(opcode)
@@ -38,7 +39,7 @@ class EvmDisassembler(object):
                     instruction.category = "unknown"
 
             except KeyError as ke:
-                instruction = registry.Instruction(opcode=opcode,
+                instruction = self._registry._template_cls(opcode=opcode,
                                           name="UNKNOWN_%s" % hex(opcode),
                                           description="Invalid opcode",
                                           category="unknown")

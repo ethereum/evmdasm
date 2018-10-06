@@ -69,12 +69,13 @@ class MyInstruction(instructions.Instruction):
 class InstructionRegistryTest(unittest.TestCase):
 
     def setUp(self):
-        self.registry = registry.InstructionRegistry(_template_cls=MyInstruction)
+        self.registry = registry.InstructionRegistry(instructions=registry.INSTRUCTIONS, _template_cls=MyInstruction)
 
     def test_custom_template(self):
         self.assertTrue(self.registry.instructions)
         for instr in self.registry.instructions:
             self.assertIsInstance(instr, MyInstruction)
+            self.assertTrue(hasattr(instr, "xrefs"))
 
         self.assertTrue(self.registry.by_opcode)
         for instr in self.registry.by_opcode.values():
@@ -95,3 +96,5 @@ class InstructionRegistryTest(unittest.TestCase):
         self.assertTrue(self.registry.instruction_marks_basicblock_end)
         for name in self.registry.instruction_marks_basicblock_end:
             self.assertIsInstance(name, str)
+
+
