@@ -46,6 +46,11 @@ SELFDESTRUCT
 
 #### accessing the instruction registry
 
+* `registry.INSTRUCTIONS` holds instruction templates. These are the initial set ob instructions available to the evm. Keep the templates static/unchanged.
+* To create a new instruction from a template either use `instruction.clone()` or `registry.create_instruction(name=; or opcode=)`. Feel free to do anything you want with this new instance of an evm instruction. 
+* To add new instructions just create an `Instruction(...)` object and put it into `registry.INSTRUCTIONS`
+
+
 ```python
 from evm_instruction import registry
 
@@ -76,6 +81,10 @@ list_of_gas_heavy_instructions = [i for i in registry.INSTRUCTIONS if i.gas > 50
 
 #### disassembling bytecode
 
+* to work with evm-bytecode create a new `EvmBytecode(...)` object. It either takes `bytes`, `0x<hexstr>` or `hexstr`
+* use `EvmBytecode.disassemble()` to transform it into a `EvmInstructions(...)` object (actually a custom `list` of `Instruction(...)` objects)
+* use `EvmInstructions.assemble()` to transform it into a `EvmBytecode(...)` object. 
+ 
 ```python
 # disassemble
 
