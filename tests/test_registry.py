@@ -15,3 +15,7 @@ class RegistryTest(unittest.TestCase):
     def test_categories_set(self):
         for i in registry.INSTRUCTIONS:
             self.assertTrue(i.category)
+
+    def test_create_instruction(self):
+        self.assertEqual(registry.instruction.JUMP, registry.INSTRUCTIONS_BY_NAME["JUMP"])
+        self.assertNotEqual(registry.instruction.JUMP, registry.create_instruction(name="JUMP"))
