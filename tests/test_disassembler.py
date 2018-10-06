@@ -4,8 +4,8 @@
 
 import unittest
 
-from evm_instruction import EvmDisassembler, EvmBytecode, EvmInstructions, Instruction
-import evm_instruction.utils as utils
+from evmdasm import EvmDisassembler, EvmBytecode, EvmInstructions, Instruction
+import evmdasm.utils as utils
 
 
 class EvmBytecodeTest(unittest.TestCase):

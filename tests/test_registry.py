@@ -4,7 +4,7 @@
 
 import unittest
 
-from evm_instruction import registry
+from evmdasm import registry
 
 
 class RegistryTest(unittest.TestCase):
