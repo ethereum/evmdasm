@@ -19,7 +19,7 @@ setup(
     author="tintinweb",
     author_email="tintinweb@oststrom.com",
     description=(
-        "A lightweight object-oriented ethereum evm bytecode asm instruction registry and disassembler library."),
+        "A lightweight ethereum evm bytecode asm instruction registry and disassembler library."),
     license="GPLv2",
     keywords=["evmdasm", "ethereum", "blockchain", "evm", "disassembler"],
     url="https://github.com/tintinweb/%s"%name,
