@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author : <github.com/tintinweb>
 import logging
-from .registry import *
-from . import utils
+from . import registry, utils
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class EvmDisassembler(object):
         for opcode in iter_bytecode:
             logger.debug(opcode)
             try:
-                instruction = INSTRUCTIONS_BY_OPCODE[opcode].consume(iter_bytecode)
+                instruction = registry.INSTRUCTIONS_BY_OPCODE[opcode].consume(iter_bytecode)
                 if not len(instruction.operand_bytes)==instruction.length_of_operand:
                     logger.error("invalid instruction: %s" % instruction.name)
                     instruction.name = "INVALID_%s" % hex(opcode)
@@ -39,7 +38,7 @@ class EvmDisassembler(object):
                     instruction.category = "unknown"
 
             except KeyError as ke:
-                instruction = Instruction(opcode=opcode,
+                instruction = registry.Instruction(opcode=opcode,
                                           name="UNKNOWN_%s" % hex(opcode),
                                           description="Invalid opcode",
                                           category="unknown")
