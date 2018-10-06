@@ -22,7 +22,7 @@ SELFDESTRUCT
 
 #### list available instructions
 ```
-#> python3 -m evmdasm --list
+#> python3 -m evmdasm --list [<filter>]
 0xop | instruction          category             gas
 ============================================================
 0x0  | STOP                 terminate            0

@@ -10,7 +10,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 def main():
     nerrors = 0
 
@@ -41,7 +40,11 @@ def main():
         print("  %-2s | %-20s %-20s %-20s" % ('op', 'instruction', 'category', 'gas'))
         print("=" * 60)
         for instr in sorted(registry.INSTRUCTIONS_BY_OPCODE.values(), key=lambda o:o.opcode):
-            print("0x%-2x | %-20s %-20s %-20s"% (instr.opcode, str(instr).strip('\x00'), instr.category, instr.gas))
+            line = "0x%-2x | %-20s %-20s %-20s"% (instr.opcode, str(instr).strip('\x00'), instr.category, instr.gas)
+            if args and any(a.lower() in line.lower() for a in args):
+                print(line)
+            elif not args:
+                print(line)
 
     elif options.disassemble:
         for a in args:
