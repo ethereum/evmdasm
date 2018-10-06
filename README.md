@@ -3,7 +3,7 @@
 # evmdasm
 *A lightweight ethereum evm bytecode instruction registry and disassembler library.*
 
-This library is meant to be a static registry for EVM opcodes and instructions. The idea is to keep it as lightweight as possible especially when it comes to dependencies or high level features.
+This library is meant for providing a static interface and registry for EVM opcodes and instructions. The idea is to keep it as lightweight as possible especially when it comes to dependencies or high level features.
 
 e.g. The [ethereum-dasm](https://github.com/tintinweb/ethereum-dasm) project - a kind of high level disassembler with static/dynamic analysis features - relies on the registry and base disassembling functionality provided by [evmdasm](https://github.com/tintinweb/evmdasm). 
 
