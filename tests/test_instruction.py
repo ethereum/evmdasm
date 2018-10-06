@@ -14,7 +14,7 @@ class InstructionTest(unittest.TestCase):
 
         # check protection of attributes of Instruction
         # make sure these attribs raise exceptions
-        for attrib in ("opcode", "name", "length_of_operand", "description", "args", "returns", "gas", "category"):
+        for attrib in ("opcode", "name", "length_of_operand", "description", "args", "returns", "gas", "category", "pops", "pushes"):
             with self.assertRaises(AttributeError) as context:
                 setattr(jmp, attrib, 1)
 

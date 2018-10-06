@@ -121,8 +121,9 @@ class Instruction(object):
     def pushes(self):
         return len(self.returns)
 
-    def clone(self):
-        return Instruction(opcode=self.opcode,
+    def clone(self, _template=None):
+        _template = Instruction if _template is None else _template
+        return _template(opcode=self.opcode,
                            name=self.name,
                            length_of_operand=self.length_of_operand,
                            description=self.description,
