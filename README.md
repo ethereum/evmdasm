@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/tintinweb/evmdasm.svg?branch=master)](https://travis-ci.org/tintinweb/evmdasm/)
+
 # evmdasm
 A lightweight object-oriented ethereum evm bytecode instruction registry and disassembler library.
 
