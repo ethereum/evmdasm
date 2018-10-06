@@ -52,7 +52,7 @@ class EvmDisassembler(object):
                 seen_stop = True
 
             instruction.address = pc
-            pc += instruction.size()
+            pc += instruction.size
             # doubly link
             instruction.previous = previous
             if previous:

@@ -16,20 +16,110 @@ class Instruction(object):
 
     def __init__(self, opcode, name, length_of_operand=0, description=None, args=None, returns=None, gas=-1, category=None):
         # static
-        self.opcode, self.name, self.length_of_operand = opcode, name, length_of_operand
-        self.gas = gas
-        self.description = description
-        self.args = args or []  # number of arguments the instruction takes from stack
-        self.returns = returns or []  # number of results returned (0 or 1)
-        self.category = category  # instruction category
+        self._opcode, self._name, self._length_of_operand = opcode, name, length_of_operand
+        self._gas = gas
+        self._description = description
+        self._args = args or []  # number of arguments the instruction takes from stack
+        self._returns = returns or []  # number of results returned (0 or 1)
+        self._category = category  # instruction category
 
         # dynamic
-        self.opcode_bytes = (self.opcode).to_bytes(1, byteorder="big")
-        self.operand_bytes = b'\x00'*length_of_operand  # sane default
-        self.operand = '\x00'*length_of_operand  # sane default
+        self._opcode_bytes = (self._opcode).to_bytes(1, byteorder="big")
+        self._operand_bytes = b'\x00'*length_of_operand  # sane default
+        self._operand = '\x00'*length_of_operand  # sane default
+
+        # mutable
         self.address = None
         self.next = None
         self.previous = None
+
+    def __repr__(self):
+        return "<%s name=%s address=%s size=%d %s>" % (self.__class__.__name__,
+                                                       self.name, hex(self.address), self.size(),
+                                                       "operand=%r" % self.operand if self.operand else "")
+
+    def __str__(self):
+        return "%s %s" % (self.name, "0x%s" % self.operand if self.operand else '')
+
+    def __len__(self):
+        return self.size
+
+    @property
+    def opcode(self):
+        return self._opcode
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def opcode(self):
+        return self._opcode
+
+    @property
+    def length_of_operand(self):
+        return self._length_of_operand
+
+    @property
+    def operand_length(self):
+        # alias. may feel more natural
+        return self._length_of_operand
+
+    @property
+    def gas(self):
+        return self._gas
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def args(self):
+        return self._args
+
+    @property
+    def returns(self):
+        return self._returns
+
+    @property
+    def category(self):
+        return self._category
+
+    @property
+    def opcode_bytes(self):
+        return self._opcode_bytes
+
+    @property
+    def operand_bytes(self):
+        return self._operand_bytes
+
+    @operand_bytes.setter
+    def operand_bytes(self, b):
+        self._operand_bytes = b
+        self._operand = ''.join('%0.2x' % _ for _ in self._operand_bytes)
+        return self
+
+    @property
+    def operand(self):
+        return self._operand
+
+    @operand.setter
+    def operand(self, s):
+        self._operand = s
+        self._operand_bytes = utils.str_to_bytes(s)
+        return self
+
+    @property
+    def size(self):
+        return self.length_of_operand + 1  # opcode + operand
+
+    @property
+    def pops(self):
+        return len(self.args)
+
+    @property
+    def pushes(self):
+        return len(self.returns)
 
     def clone(self):
         return Instruction(opcode=self.opcode,
@@ -40,31 +130,15 @@ class Instruction(object):
                            gas=self.gas,
                            category=self.category)
 
-    def __repr__(self):
-        return "<%s name=%s address=%s size=%d %s>" % (self.__class__.__name__,
-                                                       self.name, hex(self.address), self.size(),
-                                                       "operand=%r" % self.operand if self.operand else "")
-
-    def __str__(self):
-        return "%s %s" % (self.name, "0x%s" % self.operand if self.operand else '')
-
-    def size(self):
-        return self.length_of_operand + 1  # opcode + operand
-
     def consume(self, bytecode):
         # clone
         m = self.clone()
         # consume
-        m.set_operand(bytes(_ for _ in itertools.islice(bytecode, m.length_of_operand)))
+        m.operand_bytes = bytes(_ for _ in itertools.islice(bytecode, m.length_of_operand))
         return m
 
-    def set_operand(self, b):
-        self.operand_bytes = b
-        self.operand = ''.join('%0.2x' % _ for _ in self.operand_bytes)
-        return self
-
     def serialize(self):
-        return ("%0.2x" % self.opcode)+utils.bytes_to_str(self.operand_bytes, prefix="")
+        return ("%0.2x" % self.opcode) + utils.bytes_to_str(self.operand_bytes, prefix="")
 
     def skip_to(self, names):
         res = self.next
