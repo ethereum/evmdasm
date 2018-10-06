@@ -38,7 +38,7 @@ def main():
     #///////////////////
 
     if options.list:
-        print("0x%-2s | %-20s %-20s %-20s" % ('op', 'instruction', 'category', 'gas'))
+        print("  %-2s | %-20s %-20s %-20s" % ('op', 'instruction', 'category', 'gas'))
         print("=" * 60)
         for instr in sorted(registry.INSTRUCTIONS_BY_OPCODE.values(), key=lambda o:o.opcode):
             print("0x%-2x | %-20s %-20s %-20s"% (instr.opcode, str(instr).strip('\x00'), instr.category, instr.gas))
@@ -53,7 +53,8 @@ def main():
             disassembly = bytecode.disassemble()
             nerrors = len(disassembly.errors)
             print(disassembly.as_string)
-            print("\n Disassembler finished with %d errors" % nerrors)
+            if nerrors:
+                logger.warning("Disassembler finished with %d errors" % nerrors)
 
     else:
         parser.error("not implemented. check --help")
