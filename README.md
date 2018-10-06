@@ -1,8 +1,44 @@
-# evm-instruction
-A low dependency object-oriented ethereum evm bytecode asm instruction registry and disassembler library.
+# evmdasm
+A lightweight object-oriented ethereum evm bytecode instruction registry and disassembler library.
 
 
 ***TBD***
+
+
+### Commandline Utility
+```
+#> python3 -m evmdasm --help
+```
+
+```
+#> python3 -m evmdasm --disassemble 0x60406040ff
+PUSH1 40
+PUSH1 40
+SELFDESTRUCT
+```
+
+```
+#> python3 -m evmdasm --list
+0xop | instruction          category             gas
+============================================================
+0x0  | STOP                 terminate            0
+0x1  | ADD                  arithmetic           3
+0x2  | MUL                  arithmetic           5
+0x3  | SUB                  arithmetic           3
+...
+0xf0 | CREATE               system               32000
+0xf1 | CALL                 system               40
+0xf2 | CALLCODE             system               40
+0xf3 | RETURN               terminate            0
+0xf4 | DELEGATECALL         system               40
+0xf5 | CREATE2              system               32000
+0xfa | STATICCALL           system               40
+0xfd | REVERT               terminate            0
+0xff | SELFDESTRUCT         terminate            0
+
+```
+
+### Library
 
 ```python
 from evm_instruction import registry
@@ -11,6 +47,7 @@ from evm_instruction import registry
 jmp = registry.instruction.JUMP
 
 # access via dict
+jmp = registry.INSTRUCTIONS_BY_OPCODE["JUMP"]
 jmp = registry.INSTRUCTIONS_BY_NAME["JUMP"]
 
 # access via categories lookup
