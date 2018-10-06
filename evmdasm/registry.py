@@ -3,7 +3,6 @@
 # Author : <github.com/tintinweb>
 from .instructions import Instruction
 from .instruction_registry import InstructionRegistry
-from collections import namedtuple
 
 INSTRUCTIONS = [
     # Stop and Arithmetic Operations

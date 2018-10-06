@@ -35,7 +35,7 @@ class Instruction(object):
 
     def __repr__(self):
         return "<%s name=%s address=%s size=%d %s>" % (self.__class__.__name__,
-                                                       self.name, hex(self.address), self.size(),
+                                                       self.name, hex(self.address) if self.address else str(self.address), self.size,
                                                        "operand=%r" % self.operand if self.operand else "")
 
     def __str__(self):
@@ -122,7 +122,7 @@ class Instruction(object):
         return len(self.returns)
 
     def clone(self, _template=None):
-        _template = Instruction if _template is None else _template
+        _template = self.__class__ if _template is None else _template
         return _template(opcode=self.opcode,
                            name=self.name,
                            length_of_operand=self.length_of_operand,
