@@ -26,7 +26,7 @@ setup(
     download_url="https://github.com/tintinweb/%s/tarball/v%s"%(name,version),
     #python setup.py register -r https://testpypi.python.org/pypi
     long_description=read("README.md") if os.path.isfile("README.md") else "",
-    long_description_type='text/markdown',
+    long_description_content_type='text/markdown',
     install_requires=[""],
     #package_data={},
     #extras_require={},
