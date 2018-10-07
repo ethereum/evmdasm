@@ -14,7 +14,7 @@ class Instruction(object):
         doubly linked
     """
 
-    def __init__(self, opcode, name, length_of_operand=0, description=None, args=None, returns=None, gas=-1, category=None):
+    def __init__(self, opcode, name, length_of_operand=0, description=None, args=None, returns=None, gas=-1, category=None, pops=None, pushes=None, fork=''):
         # static
         self._opcode, self._name, self._length_of_operand = opcode, name, length_of_operand
         self._gas = gas
@@ -22,6 +22,9 @@ class Instruction(object):
         self._args = args or []  # number of arguments the instruction takes from stack
         self._returns = returns or []  # number of results returned (0 or 1)
         self._category = category  # instruction category
+        self._pops = pops
+        self._pushes = pushes
+        self._fork = fork
 
         # dynamic
         self._opcode_bytes = (self._opcode).to_bytes(1, byteorder="big")
@@ -115,11 +118,15 @@ class Instruction(object):
 
     @property
     def pops(self):
-        return len(self.args)
+        return self._pops if self._pops is not None else len(self.args)
 
     @property
     def pushes(self):
-        return len(self.returns)
+        return self._pushes if self._pushes is not None else len(self.returns)
+
+    @property
+    def fork (self):
+        return self._fork
 
     def clone(self, _template=None):
         _template = self.__class__ if _template is None else _template
@@ -129,7 +136,9 @@ class Instruction(object):
                            description=self.description,
                            args=self.args, returns=self.returns,
                            gas=self.gas,
-                           category=self.category)
+                           category=self.category,
+                           pops=self._pops, pushes=self._pushes,
+                           fork=self._fork)
 
     def consume(self, bytecode):
         # clone

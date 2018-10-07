@@ -116,6 +116,17 @@ class EvmInstructions(list):
         self.errors = assembler.errors
         return self.bytecode
 
+    def insert(self, index, obj):
+        ret = super().insert(index, obj)
+        self._fix_addresses()
+        return ret
+
+    def _fix_addresses(self):
+        pc = 0
+        for instr in self:
+            instr.address = pc
+            pc += len(instr)
+
     @property
     def as_string(self):
         return '\n'.join("%s %s" % (i.name, i.operand) for i in self)

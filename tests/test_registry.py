@@ -97,4 +97,3 @@ class InstructionRegistryTest(unittest.TestCase):
         for name in self.registry.instruction_marks_basicblock_end:
             self.assertIsInstance(name, str)
 
-
