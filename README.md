@@ -29,6 +29,7 @@ e.g. The [ethereum-dasm](https://github.com/tintinweb/ethereum-dasm) project - a
 
 #### disassemble
 ```
+#> echo 60406040ff | python3 -m evmdasm --disassemble
 #> python3 -m evmdasm --disassemble 0x60406040ff
 PUSH1 40
 PUSH1 40

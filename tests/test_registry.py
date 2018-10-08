@@ -52,12 +52,13 @@ class RegistryTest(unittest.TestCase):
 class MyInstruction(instructions.Instruction):
 
     def __init__(self, opcode, name, length_of_operand=0, description=None, args=None, returns=None, gas=-1,
-                 category=None):
+                 category=None, pops=None, pushes=None, fork=None):
         super().__init__(opcode=opcode, name=name,
                          length_of_operand=length_of_operand,
                          description=description,
                          args=args, returns=returns,
-                         gas=gas, category=category)
+                         gas=gas, category=category,
+                         pops=pops, pushes=pushes, fork=fork)
 
         # additional attribs
         self.annotations = []
@@ -96,5 +97,4 @@ class InstructionRegistryTest(unittest.TestCase):
         self.assertTrue(self.registry.instruction_marks_basicblock_end)
         for name in self.registry.instruction_marks_basicblock_end:
             self.assertIsInstance(name, str)
-
 
