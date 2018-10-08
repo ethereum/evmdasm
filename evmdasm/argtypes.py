@@ -3,13 +3,7 @@
 # Author : <github.com/tintinweb>
 
 
-class BaseArgument(object):
-
-    def __init__(self, name):
-        self.name = name
-
-    def __str__(self):
-        return self.name
+class BaseArgument(str): pass
 
     # todo: override ID to make it compare to the same
 
