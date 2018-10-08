@@ -47,6 +47,8 @@ def main():
                 print(line)
 
     elif options.disassemble:
+        if not sys.stdin.isatty():
+            args.append(sys.stdin.read().strip())
         for a in args:
             if os.path.isfile(a):
                 with open(a, 'r') as f:
