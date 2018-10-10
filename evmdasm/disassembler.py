@@ -77,6 +77,9 @@ class EvmBytecode(object):
         self.bytecode = EvmBytecode.normalize_bytecode(bytecode)
         self.errors = []
 
+    def __str__(self):
+        return "0x%s" % self.as_hexstring
+
     @staticmethod
     def normalize_bytecode(bytecode):
         # check if input is hexstr or bytestr and remove any prefixes. we're working on bytecode
