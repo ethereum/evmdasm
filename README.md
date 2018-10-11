@@ -7,7 +7,9 @@ This library is meant for providing a static interface and registry for EVM opco
 
 e.g. The [ethereum-dasm](https://github.com/tintinweb/ethereum-dasm) project - a kind of high level disassembler with static/dynamic analysis features - relies on the registry and base disassembling functionality provided by [evmdasm](https://github.com/tintinweb/evmdasm). 
 
-***TBD***
+
+For more information visit the [Wiki](https://github.com/tintinweb/evmdasm/wiki)
+
 ### Setup
 
 ##### from pypi
