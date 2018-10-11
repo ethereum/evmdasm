@@ -124,11 +124,26 @@ class EvmInstructions(list):
         self._fix_addresses()
         return ret
 
+    def append(self, obj):
+        ret = super().append(obj)
+        self._fix_addresses()
+        return ret
+
     def _fix_addresses(self):
         pc = 0
         for instr in self:
             instr.address = pc
             pc += len(instr)
+
+    def get_stack_balance(self):
+        depth = 0
+        for instr in self:
+            depth -= instr.pops
+            depth += instr.pushes
+        return depth
+
+    def get_gas_required(self):
+        return sum([i.gas for i in self])
 
     @property
     def as_string(self):
