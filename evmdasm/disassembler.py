@@ -120,16 +120,25 @@ class EvmInstructions(list):
         return self.bytecode
 
     def insert(self, index, obj):
+        obj.previous = self[index].previous
+        self[index].previous = obj
+        obj.next = self[index]
+
         ret = super().insert(index, obj)
         self._fix_addresses()
         return ret
 
     def append(self, obj):
+        obj.next = None
+        obj.previous = self[-1]
+        self[-1].next = obj
+
         ret = super().append(obj)
         self._fix_addresses()
         return ret
 
     def _fix_addresses(self):
+        # todo: fix jump target addresses
         pc = 0
         for instr in self:
             instr.address = pc
@@ -148,3 +157,45 @@ class EvmInstructions(list):
     @property
     def as_string(self):
         return '\n'.join("%s %s" % (i.name, i.operand) for i in self)
+
+
+class EvmProgram(object):
+    """
+
+    p = EvmProgram()
+    p.push("abcdefg")
+    c.call(arg1, arg2, arg3, ...)
+    c.op("PUSH")
+
+    """
+
+    def __init__(self,  _registry=None):
+        self._registry = _registry if _registry is not None else registry.registry
+
+        self._program = EvmInstructions()
+
+    def __getattr__(self, item):
+        # catch all the undefined calls
+        instr = self._registry.by_name.get(item.upper())
+        if not instr:
+            raise AttributeError("Instruction %s does not exist"%item)
+
+        def callback(*args, **kwargs):
+            new_instr = instr.clone()
+            for arg in new_instr.args:
+                self._program.append(self.create_push_for_data(arg))
+            self._program.append(new_instr)
+
+        return callback
+
+    def op(self, name):
+        self._program.append(self._registry.create_instruction(name.upper()))
+
+    def create_push_for_data(self, data):
+        # expect bytes but silently convert int2bytes
+        if isinstance(data, int):
+            data = utils.int2bytes(data)
+
+        instr = self._registry.create_instruction("PUSH%d" % len(data))
+        instr.operand_bytes = data
+        return instr
