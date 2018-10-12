@@ -182,7 +182,9 @@ class EvmProgram(object):
 
         def callback(*args, **kwargs):
             new_instr = instr.clone()
-            for arg in new_instr.args:
+            assert(not kwargs)  # we do not yet support kwargs
+            assert(len(args) == new_instr.args)
+            for arg in args:
                 self._program.append(self.create_push_for_data(arg))
             self._program.append(new_instr)
 
