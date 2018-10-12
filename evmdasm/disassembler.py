@@ -165,7 +165,10 @@ class EvmProgram(object):
     p = EvmProgram()
     p.push("abcdefg")
     c.call(arg1, arg2, arg3, ...)
-    c.op("PUSH")
+    c.op("JUMPDEST")
+
+    # allow chaining
+    c.op("OR").op("OR")
 
     """
 
@@ -183,15 +186,17 @@ class EvmProgram(object):
         def callback(*args, **kwargs):
             new_instr = instr.clone()
             assert(not kwargs)  # we do not yet support kwargs
-            assert(len(args) == new_instr.args)
+            assert(len(args) <= new_instr.args)
             for arg in args:
                 self._program.append(self.create_push_for_data(arg))
             self._program.append(new_instr)
+            return self
 
         return callback
 
     def op(self, name):
         self._program.append(self._registry.create_instruction(name.upper()))
+        return self
 
     def create_push_for_data(self, data):
         # expect bytes but silently convert int2bytes
