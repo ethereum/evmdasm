@@ -11,7 +11,7 @@ e.g. The [ethereum-dasm](https://github.com/tintinweb/ethereum-dasm) project - a
 **More information** --> **[Wiki](https://github.com/tintinweb/evmdasm/wiki)**
 
 Projects building on [evmdasm](https://github.com/tintinweb/evmdasm/):
-* :trophy: https://github.com/ethereum/evmlab/
+* :trophy: https://github.com/ethereum/evmlab
 * :trophy: https://github.com/tintinweb/ethereum-dasm
 * :trophy: https://github.com/tintinweb/evmcodegen
 
