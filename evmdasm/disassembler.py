@@ -199,3 +199,6 @@ class EvmProgram(object):
         instr = self._registry.create_instruction("PUSH%d" % len(data))
         instr.operand_bytes = data
         return instr
+
+    def assemble(self):
+        return self._program.assemble()
