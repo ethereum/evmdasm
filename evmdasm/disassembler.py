@@ -40,9 +40,9 @@ class EvmDisassembler(object):
 
             except KeyError as ke:
                 instruction = self._registry._template_cls(opcode=opcode,
-                                          name="UNKNOWN_%s" % hex(opcode),
-                                          description="Invalid opcode",
-                                          category="unknown")
+                                                           name="UNKNOWN_%s" % hex(opcode),
+                                                           description="Invalid opcode",
+                                                           category="unknown")
 
                 if not seen_stop:
                     msg = "error: byte at address %d (%s) is not a valid operator" % (pc, hex(opcode))
@@ -125,7 +125,7 @@ class EvmInstructions(list):
         obj.next = self[index]
 
         ret = super().insert(index, obj)
-        self._fix_addresses()
+        self._fix_addresses(at_index=index)
         return ret
 
     def append(self, obj):
@@ -134,11 +134,31 @@ class EvmInstructions(list):
         self[-1].next = obj
 
         ret = super().append(obj)
-        self._fix_addresses()
+        self._fix_addresses(at_index=-1)
         return ret
 
-    def _fix_addresses(self):
+    def _fix_addresses(self, at_index=0):
         # todo: fix jump target addresses
+        # todo: only when reading from list and not on every insert
+        if at_index == 0:
+            self._fix_all_addresses()
+            return
+        elif at_index > 0:
+            # positive index
+            offset = 1
+        elif at_index < 0:
+            # negative index
+            offset = 2
+
+        items = iter(self[at_index - offset:])
+        first_item = next(items)
+        next_pc = first_item.address + len(first_item)
+        for instr in items:
+            instr.address = next_pc
+            next_pc += len(instr)
+
+
+    def _fix_all_addresses(self, at_index=0):
         pc = 0
         for instr in self:
             instr.address = pc

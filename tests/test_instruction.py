@@ -41,4 +41,3 @@ class InstructionTest(unittest.TestCase):
         self.assertEqual(push.operand_bytes, value)
         self.assertEqual(push.operand_length, len(value))
 
-
