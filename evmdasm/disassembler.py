@@ -139,6 +139,10 @@ class EvmInstructions(list):
         self._update_instruction_addresses(at_index=self._fix_addresses_at_index)
         return super().pop(*args, **kwargs)
 
+    def index(self, *args, **kwargs):
+        self._update_instruction_addresses(at_index=self._fix_addresses_at_index)
+        return super().index(*args, **kwargs)
+
     def __delitem__(self, i):
         self._fix_addresses_required = True
         self._fix_addresses_at_index = min(self._fix_addresses_at_index,
