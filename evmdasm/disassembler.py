@@ -109,7 +109,7 @@ class EvmBytecode(object):
 
 class EvmInstructions(list):
 
-    def __init__(self, instructions, fix_addresses=True):
+    def __init__(self, instructions=[], fix_addresses=True):
         super().__init__(instructions)
 
         self._fix_addresses = fix_addresses
@@ -166,9 +166,13 @@ class EvmInstructions(list):
         return ret
 
     def append(self, obj):
+        prevs_item = super().__getitem__(-1) if len(self)>0 else None
+
         obj.next = None
-        obj.previous = super().__getitem__(-1)
-        super().__getitem__(-1).next = obj
+        obj.previous = prevs_item
+
+        if prevs_item:
+            prevs_item.next = obj
 
         ret = super().append(obj)
         self._fix_addresses_required = True
@@ -262,13 +266,17 @@ class EvmProgram(object):
         def callback(*args, **kwargs):
             new_instr = instr.clone()
             assert(not kwargs)  # we do not yet support kwargs
-            assert(len(args) <= new_instr.args)
+            assert(len(args) <= len(new_instr.args))
             for arg in args:
                 self._program.append(self.create_push_for_data(arg))
             self._program.append(new_instr)
             return self
 
         return callback
+
+    def push(self, data):
+        self._program.append(self.create_push_for_data(data))
+        return self
 
     def op(self, name):
         self._program.append(self._registry.create_instruction(name.upper()))
