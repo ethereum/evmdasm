@@ -109,9 +109,41 @@ class EvmBytecode(object):
 
 class EvmInstructions(list):
 
-    def __init__(self, instructions):
-        self.extend(instructions)
+    def __init__(self, instructions, fix_addresses=True):
+        super().__init__(instructions)
+
+        self._fix_addresses = fix_addresses
+        self._fix_addresses_at_index = 0 # start fixing from item 0
+        self._fix_addresses_required = False
+
         self.errors = []
+
+    def __iter__(self):
+        self._update_instruction_addresses(at_index=self._fix_addresses_at_index)
+        return super().__iter__()
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            stop = index
+        elif isinstance(index, slice):
+            stop = index.stop
+        else:
+            raise TypeError("index must be int or slice")
+
+        if stop >= self._fix_addresses_at_index:
+            # no need to fix addresses if we're accessing an item that has a valid address
+            self._update_instruction_addresses(at_index=self._fix_addresses_at_index)
+        return super().__getitem__(index)
+
+    def pop(self, *args, **kwargs):
+        self._update_instruction_addresses(at_index=self._fix_addresses_at_index)
+        return super().pop(*args, **kwargs)
+
+    def __delitem__(self, i):
+        self._fix_addresses_required = True
+        self._fix_addresses_at_index = min(self._fix_addresses_at_index,
+                                           i if i >= 0 else ((len(self) - i) % len(self)))
+        return super().__delitem__(i)
 
     def assemble(self):
         assembler = EvmDisassembler()
@@ -120,63 +152,83 @@ class EvmInstructions(list):
         return self.bytecode
 
     def insert(self, index, obj):
-        obj.previous = self[index].previous
-        self[index].previous = obj
-        obj.next = self[index]
+        obj.previous = super().__getitem__(index).previous
+        super().__getitem__(index).previous = obj
+        obj.next = super().__getitem__(index)
 
         ret = super().insert(index, obj)
-        self._fix_addresses(at_index=index)
+        self._fix_addresses_required = True
+        self._fix_addresses_at_index = min(self._fix_addresses_at_index, index if index >=0 else ((len(self)-index)% len(self)))
         return ret
 
     def append(self, obj):
         obj.next = None
-        obj.previous = self[-1]
-        self[-1].next = obj
+        obj.previous = super().__getitem__(-1)
+        super().__getitem__(-1).next = obj
 
         ret = super().append(obj)
-        self._fix_addresses(at_index=-1)
+        self._fix_addresses_required = True
+        self._fix_addresses_at_index = min(self._fix_addresses_at_index, len(self)-1)
         return ret
 
-    def _fix_addresses(self, at_index=0):
-        # todo: fix jump target addresses
+    def extend(self, iterable):
+        current_length = len(self)
+
+        prevs_item = super().__getitem__(-1) if current_length else None
+        for obj in iterable:
+            obj.next = None
+            obj.previous = prevs_item
+            prevs_item = obj
+
+        ret = super().extend(iterable)
+        self._fix_addresses_required = True
+        self._fix_addresses_at_index = min(self._fix_addresses_at_index, current_length-1)
+        return ret
+
+    def _update_instruction_addresses(self, at_index=0):
         # todo: only when reading from list and not on every insert
-        if at_index == 0:
-            self._fix_all_addresses()
+        if not self._fix_addresses or not self._fix_addresses_required or len(self) <=0:
+            #print("NO FIX REQUIRED")
             return
+        #print("FIX REQUIRED at %d"%at_index)
+        assert(at_index>=0)
+
+        next_pc = 0
+
+        #for nr, item in enumerate(super().__iter__()):
+        #    if nr > at_index-30:
+        #        print("%d - %r"%(nr, item))
+
+        if at_index == 0:
+            for instr in super().__iter__():
+                instr.address = next_pc
+                next_pc += len(instr)
         elif at_index > 0:
-            # positive index
-            offset = 1
-        elif at_index < 0:
-            # negative index
-            offset = 2
+            # start from previous item and update the addresses
+            items = iter(super().__getitem__(slice(at_index - 1,None)))
+            first_item = next(items)
+            #print("first item: (%d) %r"%(at_index-1,first_item))
+            next_pc = first_item.address + len(first_item)
+            for instr in items:
+                instr.address = next_pc
+                next_pc += len(instr)
 
-        items = iter(self[at_index - offset:])
-        first_item = next(items)
-        next_pc = first_item.address + len(first_item)
-        for instr in items:
-            instr.address = next_pc
-            next_pc += len(instr)
-
-
-    def _fix_all_addresses(self, at_index=0):
-        pc = 0
-        for instr in self:
-            instr.address = pc
-            pc += len(instr)
+        self._fix_addresses_at_index = len(self) - 1
+        self._fix_addresses_required = False  # we've just fixed it
 
     def get_stack_balance(self):
         depth = 0
-        for instr in self:
+        for instr in super().__iter__():
             depth -= instr.pops
             depth += instr.pushes
         return depth
 
     def get_gas_required(self):
-        return sum([i.gas for i in self])
+        return sum([i.gas for i in super().__iter__()])
 
     @property
     def as_string(self):
-        return '\n'.join("%s %s" % (i.name, i.operand) for i in self)
+        return '\n'.join("%s %s" % (i.name, i.operand) for i in super().__iter__())
 
 
 class EvmProgram(object):

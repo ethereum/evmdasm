@@ -17,8 +17,19 @@ class EvmInstructionTest(unittest.TestCase):
 
 
     def _check_address_linear(self, instructions):
+        assert(len(instructions)>0)
+
         pc = instructions[0].address
         for instr in instructions:
+            self.assertEqual(instr.address, pc)
+            pc += len(instr)
+
+    def _check_address_linear_getitem(self, instructions):
+        assert(len(instructions)>0)
+
+        pc = instructions[0].address
+        for idx in range(len(instructions)):
+            instr = instructions[idx]
             self.assertEqual(instr.address, pc)
             pc += len(instr)
 
@@ -30,6 +41,36 @@ class EvmInstructionTest(unittest.TestCase):
         for _ in range(4000):
             instructions.append(registry.create_instruction(name="JUMPDEST"))
             self._check_address_linear(instructions)
+
+    def test_append_check_end(self):
+        instructions = self.evmcode.disassemble()
+        for _ in range(4000):
+            instructions.append(registry.create_instruction(name="JUMPDEST"))
+        self._check_address_linear(instructions)
+        self._check_address_linear(instructions)
+
+    def test_append_check_end_getitem(self):
+        instructions = self.evmcode.disassemble()
+        for _ in range(4000):
+            instructions.append(registry.create_instruction(name="JUMPDEST"))
+        self._check_address_linear_getitem(instructions)
+        self._check_address_linear_getitem(instructions)
+
+    def test_append_check_end_no_fix_address(self):
+        instructions = self.evmcode.disassemble()
+        instructions._fix_addresses = False
+
+        for _ in range(4000):
+            instructions.append(registry.create_instruction(name="JUMPDEST"))
+
+        error = False
+        pc = instructions[0].address
+        for instr in instructions:
+            if not instr.address == pc:
+                error=True
+                break
+            pc += len(instr)
+        self.assertTrue(error)
 
     def test_insert(self):
         instructions = self.evmcode.disassemble()
@@ -45,6 +86,52 @@ class EvmInstructionTest(unittest.TestCase):
             idx = random.randint(0, len(instructions)-1)
             instructions.insert(idx, registry.create_instruction(name="JUMPDEST"))
             self._check_address_linear(instructions)
+
+    def test_insert_check_end(self):
+        instructions = self.evmcode.disassemble()
+
+        instructions.insert(0, registry.create_instruction(name="JUMPDEST"))
+
+        for idx in range(len(instructions)):
+            instructions.insert(-idx, registry.create_instruction(name="JUMPDEST"))
+        self._check_address_linear(instructions)
+
+        for _ in range(len(instructions)):
+            idx = random.randint(0, len(instructions)-1)
+            instructions.insert(idx, registry.create_instruction(name="JUMPDEST"))
+        self._check_address_linear(instructions)
+
+    def test_del(self):
+        instructions = self.evmcode.disassemble()
+
+        while True:
+            length = len(instructions)
+            del_idx = random.randint(0, length-1)
+
+            del(instructions[del_idx])
+
+            if len(instructions) <= 0:
+                break
+
+            self._check_address_linear(instructions)
+
+        assert(len(instructions) == 0)
+
+    def test_del_check_every_10_items(self):
+        instructions = self.evmcode.disassemble()
+
+        while True:
+            length = len(instructions)
+            del_idx = random.randint(0, length-1)
+            del (instructions[del_idx])
+
+            if length % 10 == 0:
+                self._check_address_linear(instructions)
+
+            if length <= 1:
+                break
+
+        assert(len(instructions)==0)
 
 
 
@@ -130,7 +217,6 @@ class MyInstruction(Instruction):
         self.xrefs = set([])
         self.jumpto = None
         self.basicblock = None
-
 
 
 class EvmDisassemblerCustomTest(unittest.TestCase):
