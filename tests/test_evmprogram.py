@@ -1,0 +1,64 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author : <github.com/tintinweb>
+
+import unittest
+import random
+
+from evmdasm import EvmInstructions, EvmProgram, registry, Instruction
+
+
+
+class EvmInstructionTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_assemble(self):
+        p = EvmProgram()
+        p.push(1)
+        p.push(0x0101)
+        p.op("JUMPDEST")
+        p.push(0xc0fefe)
+
+        assembled = p.assemble()
+
+        self.assertEqual(assembled.as_hexstring, "60016101015b62c0fefe")
+
+        expect = [("PUSH1","01"),
+                  ("PUSH2","0101"),
+                  ("JUMPDEST",""),
+                  ("PUSH3","c0fefe")]
+
+        for idx,instr in enumerate(p.assemble().disassemble()):
+            self.assertEqual(instr.name, expect[idx][0])
+            self.assertEqual(instr.operand, expect[idx][1])
+
+    def test_assemble(self):
+        p = EvmProgram()
+        p.push(1)
+        p.push(0x0101)
+        p.op("JUMPDEST")
+        p.push(0xc0fefe)
+        #T.Gas("gas"), T.Address("address"), T.CallValue("value"), T.MemOffset("inOffset"), T.Length("inSize"), T.MemOffset("retOffset"), T.Length("retSize")
+        p.call(1,2,3,4,5,6,7)
+
+        assembled = p.assemble()
+        self.assertEqual(assembled.as_hexstring, "60016101015b62c0fefe6001600260036004600560066007f1")
+
+        self.assertEqual(assembled.disassemble().as_string.strip(), """PUSH1 01
+PUSH2 0101
+JUMPDEST 
+PUSH3 c0fefe
+PUSH1 01
+PUSH1 02
+PUSH1 03
+PUSH1 04
+PUSH1 05
+PUSH1 06
+PUSH1 07
+CALL""".strip())
+
+
+
+
