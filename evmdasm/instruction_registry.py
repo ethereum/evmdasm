@@ -54,6 +54,9 @@ class InstructionRegistry(object):
                                            category="unknown")
         else:
             raise Exception("name or opcode required")
+
+        if not instr:
+            raise TypeError("Failed to create instruction. Invalid Name/Opcode or Operand size")
         return instr.clone()
 
     @property
