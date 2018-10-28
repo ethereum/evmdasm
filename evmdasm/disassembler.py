@@ -266,16 +266,17 @@ class EvmProgram(object):
         def callback(*args, **kwargs):
             new_instr = instr.clone()
 
+
             # build args from kwargs or args; allow either kwargs or args
             assert(len(kwargs)==0 or len(args)==0)  # provide either kwargs or args but not both
             if args:
                 assert(len(args) <= len(new_instr.args))
-                for arg in args:
+                for arg in reversed(args):  # push args in reverse order
                     self._program.append(self.create_push_for_data(arg))
             elif kwargs:
-                kwargnames = [str(a) for a in instr.args]
+                kwargnames = [str(a) for a in instr.args]  # push args in reverse order
                 assert(all(req_kwart in kwargs.keys() for req_kwart in kwargnames))  # check that all required kwargs are provided
-                for key in kwargnames:
+                for key in reversed(kwargnames):
                     # this is sorted.
                     self._program.append(self.create_push_for_data(kwargs[key]))
             self._program.append(new_instr)
