@@ -252,9 +252,9 @@ class EvmProgram(object):
 
     """
 
-    def __init__(self,  _registry=None):
+    def __init__(self,  _registry=None, strict=False):
         self._registry = _registry if _registry is not None else registry.registry
-
+        self._strict = strict
         self._program = EvmInstructions()
 
     def __getattr__(self, item):
@@ -280,6 +280,11 @@ class EvmProgram(object):
             for kwargs_argname in kwargs.keys():
                 # iter all kwargs and error if the key is invalid
                 pushargs_map[argnames_inorder.index(kwargs_argname)]= kwargs[kwargs_argname]
+
+            if self._strict:
+                # require all arguments to be set
+                if None in pushargs_map.values():
+                    raise Exception("Strict mode - arguments %r missing for instruction: %s"%([argnames_inorder[k] for k,v in pushargs_map.items() if v is None], instr.name))
 
             # push instructions
             for arg_idx in reversed(list(pushargs_map.keys())):

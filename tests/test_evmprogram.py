@@ -122,16 +122,24 @@ CALL""".strip())
                          p2.assemble().as_hexstring)
 
 
-    def test_partial_argumentlist(self):
+    def test_partial_argumentlist_zerofill(self):
         p = EvmProgram().call(0x7bc9, 0x06, 0).gas()
 
-        print(p.assemble().disassemble().as_string)
+        #print(p.assemble().disassemble().as_string)
 
         self.assertEqual(p.assemble().as_hexstring, "600060006000600060006006617bc9f15a")
 
-    def test_mixed_arglist(self):
+    def test_mixed_arglist_zerofill(self):
         p = EvmProgram().call(0x7bc9, 0x06, inOffset=0xc0).gas()
 
-        print(p.assemble().disassemble().as_string)
+        #print(p.assemble().disassemble().as_string)
 
         self.assertEqual(p.assemble().as_hexstring, "60006000600060c060006006617bc9f15a")
+
+    def test_mixed_arglist_strict_mode(self):
+        with self.assertRaises(Exception) as context:
+            p = EvmProgram(strict=True).call(0x7bc9, 0x06, inOffset=0xc0).gas()
+            #print(p.assemble().disassemble().as_string)
+            self.assertEqual(p.assemble().as_hexstring, "60006000600060c060006006617bc9f15a")
+
+        self.assertIn("strict mode".lower(), str(context.exception).lower())
