@@ -118,4 +118,20 @@ CALL""".strip())
         #T.Gas("gas"), T.Address("address"), T.CallValue("value"), T.MemOffset("inOffset"), T.Length("inSize"), T.MemOffset("retOffset"), T.Length("retSize")
         p2.call(1,2,3,4,5,6,7)
 
-        self.assertEqual(p1.assemble().as_hexstring,p2.assemble().as_hexstring)
+        self.assertEqual(p1.assemble().as_hexstring,
+                         p2.assemble().as_hexstring)
+
+
+    def test_partial_argumentlist(self):
+        p = EvmProgram().call(0x7bc9, 0x06, 0).gas()
+
+        print(p.assemble().disassemble().as_string)
+
+        self.assertEqual(p.assemble().as_hexstring, "600060006000600060006006617bc9f15a")
+
+    def test_mixed_arglist(self):
+        p = EvmProgram().call(0x7bc9, 0x06, inOffset=0xc0).gas()
+
+        print(p.assemble().disassemble().as_string)
+
+        self.assertEqual(p.assemble().as_hexstring, "60006000600060c060006006617bc9f15a")

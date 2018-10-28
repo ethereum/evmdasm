@@ -268,17 +268,25 @@ class EvmProgram(object):
 
 
             # build args from kwargs or args; allow either kwargs or args
-            assert(len(kwargs)==0 or len(args)==0)  # provide either kwargs or args but not both
-            if args:
-                assert(len(args) <= len(new_instr.args))
-                for arg in reversed(args):  # push args in reverse order
-                    self._program.append(self.create_push_for_data(arg))
-            elif kwargs:
-                kwargnames = [str(a) for a in instr.args]  # push args in reverse order
-                assert(all(req_kwart in kwargs.keys() for req_kwart in kwargnames))  # check that all required kwargs are provided
-                for key in reversed(kwargnames):
-                    # this is sorted.
-                    self._program.append(self.create_push_for_data(kwargs[key]))
+
+            # we'll reverse this once we push.
+            pushargs_map = {i:None for i in range(len(instr.args))}   # all args
+
+            # put args in args_map
+            for i,arg in enumerate(args):
+                pushargs_map[i] = arg
+
+            argnames_inorder = [str(a) for a in instr.args]
+            for kwargs_argname in kwargs.keys():
+                # iter all kwargs and error if the key is invalid
+                pushargs_map[argnames_inorder.index(kwargs_argname)]= kwargs[kwargs_argname]
+
+            # push instructions
+            for arg_idx in reversed(list(pushargs_map.keys())):
+                arg = pushargs_map[arg_idx]
+                # zero-fill args that were not provided
+                self._program.append(self.create_push_for_data(arg if arg is not None else 0x00))
+
             self._program.append(new_instr)
             return self
 
