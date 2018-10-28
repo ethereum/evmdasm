@@ -34,7 +34,7 @@ class EvmInstructionTest(unittest.TestCase):
             self.assertEqual(instr.name, expect[idx][0])
             self.assertEqual(instr.operand, expect[idx][1])
 
-    def test_assemble(self):
+    def test_assemble_call_args(self):
         p = EvmProgram()
         p.push(1)
         p.push(0x0101)
@@ -59,6 +59,55 @@ PUSH1 06
 PUSH1 07
 CALL""".strip())
 
+    def test_assemble_call_kargs(self):
+        p = EvmProgram()
+        p.push(1)
+        p.push(0x0101)
+        p.op("JUMPDEST")
+        p.push(0xc0fefe)
+        # T.Gas("gas"), T.Address("address"), T.CallValue("value"), T.MemOffset("inOffset"), T.Length("inSize"), T.MemOffset("retOffset"), T.Length("retSize")
+        p.call(gas=1, address=2, value=3, inOffset=4, inSize=5, retOffset=6, retSize=7)
+
+        assembled = p.assemble()
+        self.assertEqual(assembled.as_hexstring, "60016101015b62c0fefe6001600260036004600560066007f1")
+
+        self.assertEqual(assembled.disassemble().as_string.strip(), """PUSH1 01
+PUSH2 0101
+JUMPDEST 
+PUSH3 c0fefe
+PUSH1 01
+PUSH1 02
+PUSH1 03
+PUSH1 04
+PUSH1 05
+PUSH1 06
+PUSH1 07
+CALL""".strip())
+
+    def test_assemble_call_kwargs_unsort(self):
+        p = EvmProgram()
+        p.push(1)
+        p.push(0x0101)
+        p.op("JUMPDEST")
+        p.push(0xc0fefe)
+        # T.Gas("gas"), T.Address("address"), T.CallValue("value"), T.MemOffset("inOffset"), T.Length("inSize"), T.MemOffset("retOffset"), T.Length("retSize")
+        p.call(value=3, inOffset=4, inSize=5, retOffset=6,gas=1, address=2,  retSize=7)
+
+        assembled = p.assemble()
+        self.assertEqual(assembled.as_hexstring, "60016101015b62c0fefe6001600260036004600560066007f1")
+
+        self.assertEqual(assembled.disassemble().as_string.strip(), """PUSH1 01
+PUSH2 0101
+JUMPDEST 
+PUSH3 c0fefe
+PUSH1 01
+PUSH1 02
+PUSH1 03
+PUSH1 04
+PUSH1 05
+PUSH1 06
+PUSH1 07
+CALL""".strip())
 
 
 
