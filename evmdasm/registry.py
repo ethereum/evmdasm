@@ -65,6 +65,11 @@ INSTRUCTIONS = [
     Instruction(opcode=0x43, name='NUMBER', category="blockinfo", gas=2, description="Get the block's number.", returns=[T.Value("block.number")]),
     Instruction(opcode=0x44, name='DIFFICULTY', category="blockinfo", gas=2, description="Get the block's difficulty.", returns=[T.Value("block.difficulty")]),
     Instruction(opcode=0x45, name='GASLIMIT', category="blockinfo", gas=2, description="Get the block's gas limit.", returns=[T.Gas("block.gaslimit")]),
+    
+    Instruction(opcode=0x46, name='CHAINID', category="blockinfo", gas=2, description="Get the chain id.", returns=[T.Gas("chain_id")]),
+    Instruction(opcode=0x47, name='SELFBALANCE', category="blockinfo", gas=5, description="Get own balance.", returns=[T.Gas("address(this).balance")]),
+    Instruction(opcode=0x48, name='BASEFEE', category="blockinfo", gas=2, description="Get the value of the base fee of the current block.", returns=[T.Gas("block.basefee")]),
+
 
     # Stack, Memory, Storage and Flow Operations
     Instruction(opcode=0x50, name='POP', category="stack", gas=2, description="Remove item from stack.", args=[T.Internal("#dummy")], ),
