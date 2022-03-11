@@ -9,7 +9,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-version = "0.1.9"
+version = "0.1.10"
 name = "evmdasm"
 
 setup(
