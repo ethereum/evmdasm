@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author : <github.com/tintinweb>
 import logging
-from . import registry, utils
+from . import registry, utils, exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class EvmDisassembler(object):
         self.debug = debug
         self._registry = _registry if _registry is not None else registry.registry
 
-    def disassemble(self, bytecode):
+    def disassemble(self, bytecode, raise_on_invalid_opcode=False):
         """ Disassemble evm bytecode to a Instruction objects """
 
         pc = 0
@@ -32,8 +32,11 @@ class EvmDisassembler(object):
             logger.debug(opcode)
             try:
                 instruction = self._registry.by_opcode[opcode].consume(iter_bytecode)
-                if not len(instruction.operand_bytes)==instruction.length_of_operand:
-                    logger.warning("invalid instruction: %s" % instruction.name)
+                if not len(instruction.operand_bytes) == instruction.length_of_operand:
+                    if raise_on_invalid_opcode:
+                        raise exceptions.InvalidOpcodeError("invalid instruction: %s" % instruction.name)
+                    else:
+                        logger.warning("invalid instruction: %s" % instruction.name)
                     instruction._name = "INVALID_%s" % hex(opcode)
                     instruction._description = "Invalid operand"
                     instruction._category = "unknown"
